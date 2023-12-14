@@ -1,0 +1,14 @@
+fastdtw==0.3.4
+Flask==3.0.0
+Flask_Cors==4.0.0
+Flask_RESTful==0.3.10
+loguru==0.5.3
+matplotlib==3.7.1
+networkx==2.8.4
+numpy==1.25.1
+pandas==1.5.3
+pydantic==1.10.11
+Requests==2.31.0
+ruptures==1.1.8
+scikit_learn==1.2.2
+scipy==1.10.1

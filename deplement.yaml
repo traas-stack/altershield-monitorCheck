@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bmc-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bmc-test-v3
+  template:
+    metadata:
+      labels:
+        app: bmc-test-v3
+    spec:
+      containers:
+      - name: batch-monitor-check-test
+        image: codefriday123/altershield-algorithm:1.0-dev-0.0.1
+        ports:
+        - containerPort: 8083
