@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bmc-test
+  name: monitor-check-deployment
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: bmc-test-v3
+      app: monitor-check-beta
   template:
     metadata:
       labels:
-        app: bmc-test-v3
+        app: monitor-check-beta
     spec:
       containers:
-      - name: batch-monitor-check-test
-        image: codefriday123/altershield-algorithm:1.0-dev-0.0.1
+      - name: monitor-check-beta
+        image: altershield/altershield-defender:monitor-check-beta-1.0.1
         ports:
         - containerPort: 8083

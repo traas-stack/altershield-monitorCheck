@@ -9,17 +9,17 @@
 > 2、需要在 altershield-monitorCheck 项目根目录中执行镜像构建命令
 
 ```shell
-docker build -t batch_monitor_check:V1.0 .
+docker build -t localImage:tag .
 ```
 #### 2、镜像上传
 将构建好的镜像打好tag，上传至镜像仓库「保证该仓库镜像可以从K8S集群中拉取」即可。
 ```shell
-docker tag localImage:tag ***.altershield.com/altershield/batch_monitor_check:V1.0
+docker tag localImage:tag altershield/altershield-defender:monitor-check-beta-1.0.1
 ```
 ```shell
-docker push ***.altershield.com/altershield/batch_monitor_check:V1.0
+docker push altershield/altershield-defender:monitor-check-beta-1.0.1
 ```
-镜像地址为：***.altershield.com/altershield/batch_monitor_check:V1.0
+镜像地址为：`altershield/altershield-defender:monitor-check-beta-1.0.1` 「**该镜像已公开**」
 
 ### K8S 集群部署
 首先，需要确定本地可以连接上K8S集群，执行以下命令可进行验证集群连通性。如果能成功连接，此命令将显示集群服务的基本信息。
@@ -30,34 +30,57 @@ kubectl cluster-info
 #### 1、修改 image 地址
 修改 deployment 文件配置的镜像地址「deployment 使用 alter_shidle_batch_monitor/deployment.yaml」
 ```yaml
-image: ***.altershield.com/altershield/batch_monitor_check:V1.0
+image: altershield/altershield-defender:monitor-check-beta-1.0.1
 ```
 #### 2、创建 deployment
+本地创建 monitor-check-deployment.yaml 文件「可自行修改 svc 配置」
+```shell
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monitor-check-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: monitor-check-beta
+  template:
+    metadata:
+      labels:
+        app: monitor-check-beta
+    spec:
+      containers:
+      - name: monitor-check-beta
+        image: altershield/altershield-defender:monitor-check-beta-1.0.1
+        ports:
+        - containerPort: 8083
+```
+在集群中创建 deployment
 ```shell
 kubectl apply -f ~/.alter_shidle_batch_monitor/deployment.yaml
 ```
 #### 3、创建 svc
-本地创建 bmc-svc.yaml 文件「可自行修改 svc 配置」
+本地创建 monitor-check-svc.yaml 文件「可自行修改 svc 配置」
 ```yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: bmc-test-svc
-  namespace: bmc-test
+  name: monitor-check-svc
+  namespace: altershield
 spec:
   ports:
   - port: 8083
     protocol: TCP
     targetPort: 8083
   selector:
-    app: bmc-test-v3 # 这里需要绑定app
+    app: monitor-check-beta # 这里需要绑定app
   type: ClusterIP
 ```
 在集群中创建 svc
 ```shell
 kubectl apply -f bmc-svc.yaml
 ```
-查看 svc 是否创建，列表中包含bmc-test-svc表示创建成功 
+查看 svc 是否创建成功，列表中包含`monitor-check-svc`表示创建成功 
 ```shell
 kubectl get service
 ```
@@ -69,18 +92,21 @@ kubectl edit deployment bmc-test
 可通过查看 Pod 状态，以及相关日志判断 Pod 启动是否成功，以及失败信息。
 ### Docker 容器部署
 本地执行以下命令启动 docker 容器，部署成功后即可进行调试。
-> 本机8080端口绑定容器8083端口
+> 本机8083端口绑定容器8083端口
+> 
+> 如果本地未打镜像，可执行该命令先从 dockerHub 拉取本项目提供公共镜像
+> 
+> `docker pull altershield/altershield-defender:monitor-check-beta-1.0.1`
 ```shell
-docker run -d -p 8080:8083 batch_monitor_check:V1.0
+docker run -d -p 8083:8083 altershield/altershield-defender:monitor-check-beta-1.0.1
 ```
 ## 测试验证
 ### 本地测试
 以本地Docker启动为例，Port=8083
 
 Path: 
-```json
-/api/check/batch_monitor_detect
-```
+> /api/check/batch_monitor_detect
+
 Body:
 ```json
 {
