@@ -344,10 +344,7 @@ curl --location --request POST 'http://***.***.***.***:8083/api/check/batch_moni
     }
 }'
 ```
-调用返回示例：
-```json
 
-```
 Cluster IP 获取方式：
 ```shell
 kubectl get service
