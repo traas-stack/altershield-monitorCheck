@@ -92,7 +92,11 @@ kubectl edit deployment bmc-test
 可通过查看 Pod 状态，以及相关日志判断 Pod 启动是否成功，以及失败信息。
 ### Docker 容器部署
 本地执行以下命令启动 docker 容器，部署成功后即可进行调试。
-> 本机8080端口绑定容器8083端口
+> 本机8083端口绑定容器8083端口
+> 
+> 如果本地未打镜像，可执行该命令先从 dockerHub 拉取本项目提供公共镜像
+> 
+> `docker pull altershield/altershield-defender:monitor-check-beta-1.0.1`
 ```shell
 docker run -d -p 8083:8083 altershield/altershield-defender:monitor-check-beta-1.0.1
 ```
